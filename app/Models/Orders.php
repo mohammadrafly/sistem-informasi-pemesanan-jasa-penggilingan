@@ -62,8 +62,8 @@ class Orders extends Model
             ->join('jenis_tanaman', 'orders.jenis_tanaman = jenis_tanaman.id')
             ->get()->getResult();
     }
-    
-    function getOrderByID($id)
+
+    function getOrdersByAdmin($id)
     {
         return $this->db->table('orders')
             ->select('
@@ -73,9 +73,22 @@ class Orders extends Model
             ')
             ->join('users', 'orders.id_user = users.id')
             ->join('jenis_tanaman', 'orders.jenis_tanaman = jenis_tanaman.id')
-            ->where('orders.id', $id)
+            ->where('orders.admin', $id)
             ->get()->getResult();
     }
+    
+    function getOrderByID($id) 
+    {
+        return $this->db
+            ->table('orders')
+            ->select('users.name, jenis_tanaman.nama_tanaman as jenis, orders.*')
+            ->join('users', 'orders.id_user = users.id')
+            ->join('jenis_tanaman', 'orders.jenis_tanaman = jenis_tanaman.id')
+            ->where('orders.id', $id)
+            ->get()
+            ->getResult();
+    }
+    
 
     function getOrderByIdUser($id)
     {

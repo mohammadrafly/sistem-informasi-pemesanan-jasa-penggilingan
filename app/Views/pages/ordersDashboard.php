@@ -18,7 +18,7 @@
                                                                         </div>
                                                                         <div class="modal-body">
                                                                             <form id="form">
-                                                                            <input hidden name="id" id="id"/>
+                                                                                <input hidden name="id" id="id"/>
                                                                                 <div class="form-group form-group mb-4">
                                                                                     <label for="input">Tanggal DB</label>
                                                                                     <input type="date" class="form-control datepicker-here" data-language="en" name="tanggal_db" id="tanggal_db" required/>

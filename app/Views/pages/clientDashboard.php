@@ -6,46 +6,56 @@
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-12">
-                                                            <div id="modal" class="modal fade bs-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+                                                <button type="button" class="btn btn-primary btn-sm waves-effect waves-light mb-3" data-toggle="modal" data-target=".bs-example-modal-xl">Tambah Order Saya</button>
+                                                <div id="modal" class="modal fade bs-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
                                                                 <div class="modal-dialog modal-xl">
                                                                     <div class="modal-content">
                                                                         <div class="modal-header">
-                                                                            <h5 class="modal-title" id="myExtraLargeModalLabel"></h5>
+                                                                            <h5 class="modal-title" id="myExtraLargeModalLabel">Tambah Order</h5>
                                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                                 <span aria-hidden="true" class="close">&times;</span>
                                                                             </button>
                                                                         </div>
                                                                         <div class="modal-body">
-                                                                            <form id="form" >
-                                                                                <div class="form-group form-group-custom mb-4">
-                                                                                    <input hidden name="id" id="id">
-                                                                                    <input type="text" class="form-control" id="username" name="username" required>
-                                                                                    <label for="username">Username</label>
+                                                                            <form id="form">
+                                                                                <input hidden name="id" id="id"/>
+                                                                                <input hidden value="<?= session()->get('username') ?>" name="username" id="username"/>
+                                                                                <div class="form-group form-group mb-4">
+                                                                                    <label for="input">Tanggal DB</label>
+                                                                                    <input type="date" class="form-control datepicker-here" data-language="en" name="tanggal_db" id="tanggal_db" required/>
                                                                                 </div>
-                                                                                <div class="form-group form-group-custom mb-4">
-                                                                                    <input type="email" class="form-control" id="email" name="email" required>
-                                                                                    <label for="email">Email</label>
+                                                                                <div class="form-group form-group mb-4">
+                                                                                    <label for="input">Alamat DB</label>
+                                                                                    <textarea type="text" class="form-control" name="alamat_db" id="alamat_db" required></textarea>
                                                                                 </div>
-                                                                                <div class="form-group form-group-custom mb-4">
-                                                                                    <input type="text" class="form-control" id="name" name="name" required>
-                                                                                    <label for="name">Name</label>
+                                                                                <div class="form-group form-group mb-4">
+                                                                                    <label for="input">Nomor Pemesan</label>
+                                                                                    <input type="text" class="form-control" id="nomor_user" name="nomor_user" required>
                                                                                 </div>
-                                                                                <div id="pass" class="row">
-                                                                                    <div class="col-sm-6">
-                                                                                        <div class="form-group form-group-custom mb-4">
-                                                                                            <input type="password" class="form-control" id="password" required>
-                                                                                            <label for="password">Password</label> 
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-sm-6">
-                                                                                        <div class="form-group form-group-custom mb-4">
-                                                                                            <input type="password" class="form-control" id="password_confirmation" required>
-                                                                                            <label for="password_confirmation">Password Confirmation</label>
-                                                                                        </div>
-                                                                                    </div>
+                                                                                <div class="form-group form-group mb-4">
+                                                                                    <label for="input">Luas Sawah</label>
+                                                                                    <input type="text" class="form-control" id="luas_sawah" name="luas_sawah" required> 
+                                                                                </div>
+                                                                                <div class="form-group form-group mb-4">
+                                                                                    <label for="input">Jenis Tanaman</label>
+                                                                                    <select class="custom-select" name="jenis_tanaman" id="jenis_tanaman" required>
+                                                                                        <option selected>Pilih Jenis Tanaman</option>
+                                                                                        <?php foreach($jenis as $data): ?>
+                                                                                        <option value="<?= $data['id'] ?>"><?= $data['nama_tanaman'] ?></option>
+                                                                                        <?php endforeach ?>
+                                                                                    </select>
+                                                                                </div>
+                                                                                <div class="form-group form-group mb-4">
+                                                                                    <label for="input">Admin Eksekusi</label>
+                                                                                    <select class="custom-select" name="admin" id="admin" required>
+                                                                                        <option selected>Pilih Admin</option>
+                                                                                        <?php foreach($admin as $data): ?>
+                                                                                        <option value="<?= $data['id'] ?>"><?= $data['name'] ?></option>
+                                                                                        <?php endforeach ?>
+                                                                                    </select>
                                                                                 </div>
                                                                                 <div class="mt-4">
-                                                                                    <button class="btn btn-primary waves-effect waves-light" onclick="saveUser()">Save User</button>
+                                                                                    <button class="btn btn-primary waves-effect waves-light" onclick="saveOrder()">Save Order</button>
                                                                                 </div>
                                                                             </form>
                                                                         </div>
@@ -69,14 +79,19 @@
                                                                 <td><?= $data->alamat_db ?></td>
                                                                 <td><?= $data->tanggal_db ?></td>
                                                                 <td><?= $data->nomor_user ?></td>
-                                                                <td><?= $data->created_at ?></td>
+                                                                <td>
+                                                                    <?php if($data->status == 'menunggu_konfirmasi'): ?>
+                                                                        <span class="badge-pill badge-warning"> Menunggu Konfirmasi</span>
+                                                                    <?php elseif($data->status == 'dalam_progres'): ?>
+                                                                        <span class="badge-pill badge-primary"> Dalam Progres</span>
+                                                                    <?php elseif($data->status == 'selesai'): ?>
+                                                                        <span class="badge-pill badge-success"> Selesai</span>
+                                                                    <?php endif ?>
+                                                                </td>
                                                                 <td><?= $data->updated_at ?></td>
                                                                 <td>
-                                                                    <button class="btn-sm btn-primary" onclick="editUser(<?= $data->id?>)">
+                                                                    <button class="btn-sm btn-primary" onclick="editOrder(<?= $data->id?>)">
                                                                         <span>Update</span>
-                                                                    </button>
-                                                                    <button class="btn-sm btn-danger" onclick="deleteUser(<?= $data->id?>)">
-                                                                        <span>Delete</span>
                                                                     </button>
                                                                 </td>
                                                             </tr>

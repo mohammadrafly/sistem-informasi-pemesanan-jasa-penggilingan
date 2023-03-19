@@ -39,7 +39,6 @@ $routes->group('dashboard' , ['filter' => 'authMiddleware'] , function($routes) 
 
     //Client
     $routes->match(['GET', 'POST'], 'client/(:any)', 'ClientController::index/$1');
-    $routes->match(['GET', 'POST'], 'client/update/(:num)', 'ClientController::update/$1');
 
     //User
     $routes->match(['GET', 'POST'], 'users', 'UsersController::index');

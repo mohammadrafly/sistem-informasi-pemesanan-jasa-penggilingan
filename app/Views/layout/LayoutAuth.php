@@ -31,7 +31,6 @@
                     <div class="col-lg-12">
                         <div class="text-center mb-5">
                             <a href="<?= base_url('login') ?>" class="logo"><img src="<?= base_url('assets/images/logo-light.png') ?>" height="24" alt="logo"></a>
-                            <h5 class="font-size-16 text-white-50 mb-4">Responsive Bootstrap 4 Admin Dashboard</h5>
                         </div>
                     </div>
                 </div>
