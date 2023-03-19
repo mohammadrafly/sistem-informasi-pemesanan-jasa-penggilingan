@@ -1,0 +1,98 @@
+<?= $this->extend('layout/LayoutDashboard') ?>
+<?= $this->section('content') ?>
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                            <div id="modal" class="modal fade bs-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog modal-xl">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title" id="myExtraLargeModalLabel"></h5>
+                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true" class="close">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <form id="form" >
+                                                                                <div class="form-group form-group-custom mb-4">
+                                                                                    <input hidden name="id" id="id">
+                                                                                    <input type="text" class="form-control" id="username" name="username" required>
+                                                                                    <label for="username">Username</label>
+                                                                                </div>
+                                                                                <div class="form-group form-group-custom mb-4">
+                                                                                    <input type="email" class="form-control" id="email" name="email" required>
+                                                                                    <label for="email">Email</label>
+                                                                                </div>
+                                                                                <div class="form-group form-group-custom mb-4">
+                                                                                    <input type="text" class="form-control" id="name" name="name" required>
+                                                                                    <label for="name">Name</label>
+                                                                                </div>
+                                                                                <div id="pass" class="row">
+                                                                                    <div class="col-sm-6">
+                                                                                        <div class="form-group form-group-custom mb-4">
+                                                                                            <input type="password" class="form-control" id="password" required>
+                                                                                            <label for="password">Password</label> 
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col-sm-6">
+                                                                                        <div class="form-group form-group-custom mb-4">
+                                                                                            <input type="password" class="form-control" id="password_confirmation" required>
+                                                                                            <label for="password_confirmation">Password Confirmation</label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="mt-4">
+                                                                                    <button class="btn btn-primary waves-effect waves-light" onclick="saveUser()">Save User</button>
+                                                                                </div>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div><!-- /.modal-content -->
+                                                                </div><!-- /.modal-dialog -->
+                                                            </div><!-- /.modal -->
+                                                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Alamat</th>
+                                                                <th>Tanggal Eksekusi</th>
+                                                                <th>Nomor HP</th>
+                                                                <th>Status</th>
+                                                                <th>Update</th>
+                                                                <th>Opsi</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php foreach($content as $data): ?>
+                                                            <tr>
+                                                                <td><?= $data->alamat_db ?></td>
+                                                                <td><?= $data->tanggal_db ?></td>
+                                                                <td><?= $data->nomor_user ?></td>
+                                                                <td><?= $data->created_at ?></td>
+                                                                <td><?= $data->updated_at ?></td>
+                                                                <td>
+                                                                    <button class="btn-sm btn-primary" onclick="editUser(<?= $data->id?>)">
+                                                                        <span>Update</span>
+                                                                    </button>
+                                                                    <button class="btn-sm btn-danger" onclick="deleteUser(<?= $data->id?>)">
+                                                                        <span>Delete</span>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <?php endforeach ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                            </div>
+                            <!-- end row -->
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="<?= base_url('ajax/crudClient.js') ?>"></script>
+<?= $this->endSection() ?>
