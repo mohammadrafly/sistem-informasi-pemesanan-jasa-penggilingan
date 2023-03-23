@@ -11,7 +11,7 @@ class DashboardController extends BaseController
     public function Logout()
     {
         session()->destroy();
-        return $this->response->setJSON([
+        return response()->setJSON([
             'status' => true,
             'icon' => 'success',
             'title' => 'Logout Berhasil.',
@@ -20,15 +20,17 @@ class DashboardController extends BaseController
 
     public function index()
     {
-        $order = new Orders();
-        $user = new Users();
+        $orderCount = model('Orders')->countAllResults();
+        $userCount = model('Users')->countAllResults();
+        $userCountByRole = model('Users')->where('role', 'user')->countAllResults();
         $data = [
             'page' => 'Dashboard',
-            'order' => $order->countAllResults(),
-            'user' => $user->where('role','user')->countAllResults(),
-            'allUser' => $user->countAllResults(),
+            'order' => $orderCount,
+            'user' => $userCountByRole,
+            'allUser' => $userCount,
         ];
         //dd($data);
         return view('pages/indexDashboard', $data);
     }
+    
 }

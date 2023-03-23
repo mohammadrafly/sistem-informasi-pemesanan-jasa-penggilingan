@@ -20,6 +20,7 @@ class Users extends Model
         'email',
         'name',
         'role',
+        'token',
         'updated_at',
     ];
 
@@ -67,5 +68,24 @@ class Users extends Model
         return $this->db->table('users')
             ->where('role', $role)
             ->get()->getResultArray();
+    }
+
+    public function getUserByEmail(string $email): ?array
+    {
+        return $this->db
+            ->table('users')
+            ->where('email', $email)
+            ->get()
+            ->getRowArray();
+    }
+    
+    public function UpdatedAt(string $token): bool
+    {
+        return $this->db
+            ->table('users')
+            ->where('token', $token)
+            ->update(['updated_at' => date('Y-m-d H:i:s')]);
+    
+         
     }
 }

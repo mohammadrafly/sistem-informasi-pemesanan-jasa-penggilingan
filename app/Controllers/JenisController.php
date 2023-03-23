@@ -9,43 +9,45 @@ class JenisController extends BaseController
 {
     public function index()
     {
-        $model = new JenisTanaman();
-        if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
-            $data = [
-                'nama_tanaman' => $this->request->getPost('nama_tanaman')
+        $jenisTanamanModel = new JenisTanaman();
+        $postData = $this->request->getPost();
+
+        if (!empty($postData)) {
+            $saved = $jenisTanamanModel->save($postData);
+            $status = $saved ? [
+                'status' => true,
+                'icon' => 'success',
+                'title' => 'Success!',
+                'text' => 'Berhasil menyimpan data jenis.',
+            ] : [
+                'status' => false,
+                'icon' => 'error',
+                'title' => 'Warning!',
+                'text' => 'Gagal menyimpan data jenis.',
             ];
-            if ($model->save($data)) {
-                return $this->response->setJSON([
-                    'status' => true,
-                    'icon' => 'success',
-                    'title' => 'Success!',
-                    'text' => 'Berhasil menyimpan data jenis.',
-                ]);
-            } else {
-                return $this->response->setJSON([
-                    'status' => true,
-                    'icon' => 'error',
-                    'title' => 'Warning!',
-                    'text' => 'Gagal menyimpan data jenis.',
-                ]);
-            }
+
+            return $this->response->setJSON($status);
         }
+
+        $jenisTanaman = $jenisTanamanModel->findAll();
         $data = [
-            'content' => $model->findAll(),
+            'content' => $jenisTanaman,
             'page' => 'List Jenis'
         ];
         return view('pages/jenisDashboard', $data);
     }
 
+
     public function update($id)
     {
         $model = new JenisTanaman();
+        $data = [
+            'nama_tanaman' => $this->request->getPost('nama_tanaman'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
         if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
-            $data = [
-                'nama_tanaman' => $this->request->getPost('nama_tanaman'),
-                'updated_at'=> date('Y-m-d H:i:s'),
-            ];
-            if ($model->update($id, $data)) {
+            $result = $model->update($id, $data);
+            if ($result) {
                 return $this->response->setJSON([
                     'status' => true,
                     'icon' => 'success',
@@ -60,10 +62,9 @@ class JenisController extends BaseController
                     'text' => 'Gagal menyimpan data jenis.',
                 ]);
             }
-        } elseif($this->request->isAJAX() && $this->request->getMethod(true) === 'GET') {
-            return $this->response->setJSON([
-                'data' => $model->where('id', $id)->first(),
-            ]);
+        } elseif ($this->request->isAJAX() && $this->request->getMethod(true) === 'GET') {
+            $data['data'] = $model->find($id);
+            return $this->response->setJSON($data);
         }
     }
 
@@ -71,7 +72,8 @@ class JenisController extends BaseController
     {
         $model = new JenisTanaman();
         if ($this->request->isAJAX()) {
-            if ($model->where('id', $id)->delete($id)) {
+            $deleted = $model->delete($id);
+            if ($deleted) {
                 return $this->response->setJSON([
                     'status' => true,
                     'icon' => 'success',

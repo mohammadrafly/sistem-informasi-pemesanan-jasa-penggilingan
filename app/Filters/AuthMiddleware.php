@@ -26,8 +26,7 @@ class AuthMiddleware implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         if (!session()->get('LoginTrue')) {
-            session()->setFlashdata('error', 'Akses dilarang, silahkan lakukan login/register.');
-            return redirect()->to('/');
+            return redirect()->to('/')->with('error', 'Akses dilarang, silahkan lakukan login/register.');
         }
     }
 

@@ -7,106 +7,224 @@ use App\Models\Users;
 
 class AuthController extends BaseController
 {
-    private function setSession($data)
+    function generateToken($length = 150) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $token = '';
+        
+        for ($i = 0; $i < $length; $i++) {
+            $randomCharacter = $characters[mt_rand(0, strlen($characters) - 1)];
+            $token .= $randomCharacter;
+        }
+        
+        return $token;
+    }
+    private function setSession(array $userData): bool
     {
-        session()->set([
-            'LoginTrue' => TRUE,
-            'id'        => $data[0]['id'],
-            'name'      => $data[0]['name'],
-            'username'  => $data[0]['username'],
-            'email'     => $data[0]['email'],
-            'role'      => $data[0]['role'],
-            'created_at'=> $data[0]['created_at'],
-        ]);
+        $sessionData = [
+            'LoginTrue' => true,
+            'id' => $userData[0]['id'],
+            'name' => $userData[0]['name'],
+            'username' => $userData[0]['username'],
+            'email' => $userData[0]['email'],
+            'role' => $userData[0]['role'],
+            'created_at' => $userData[0]['created_at'],
+        ];
+    
+        session()->set($sessionData);
+    
         return true;
     }
 
     public function index()
     {
-        $data = [
-            'page' => 'Home'
-        ];
-        return view('pages/indexHome', $data);
+        return view('pages/indexHome', ['page' => 'Home']);
     }
+    
 
-    public function Login()
+    public function login()
     {
         $model = new Users();
-        if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
-            $checkpointData = $model->usernameOrEmail($this->request->getPost('username'));
-            if (!empty($checkpointData)) {
-                if (password_verify($this->request->getPost('password'), $checkpointData[0]['password'])) {
-                    $this->setSession($checkpointData);
-                    return $this->response->setJSON([
-                        'status' => true,
-                        'icon' => 'success',
-                        'title' => 'Berhasil login!',
-                        'text' => 'Anda akan diarahkan dalam 3 detik.',
-                    ]);
-                } else {
-                    return $this->response->setJSON([
-                        'status' => false,
-                        'icon' => 'error',
-                        'title' => 'Peringatan!',
-                        'text' => 'Password salah.',
-                    ]);
-                }
-            } else {
-                return $this->response->setJSON([
-                    'status' => false,
-                    'icon' => 'error',
-                    'title' => 'Peringatan!',
-                    'text' => 'Username atau email tidak ada.',
-                ]);
-            }
+        
+        if (!$this->request->isAJAX() || $this->request->getMethod(true) !== 'POST') {
+            return view('pages/auth/signInAuth', ['page' => 'Login']);
         }
-        $data = [
-            'page' => 'Login'
-        ];
-        return view('pages/auth/signInAuth', $data);
+
+        $username = $this->request->getPost('username');
+        $checkpointData = $model->usernameOrEmail($username);
+
+        if (empty($checkpointData)) {
+            return $this->response->setJSON([
+                'status' => false,
+                'icon' => 'error',
+                'title' => 'Peringatan!',
+                'text' => 'Username atau email tidak ada.',
+            ]);
+        }
+        $password = $this->request->getPost('password');
+        $isValidPassword = password_verify($password, $checkpointData[0]['password']);
+
+        if (!$isValidPassword) {
+            return $this->response->setJSON([
+                'status' => false,
+                'icon' => 'error',
+                'title' => 'Peringatan!',
+                'text' => 'Password salah.',
+            ]);
+        }
+
+        $this->setSession($checkpointData);
+
+        return $this->response->setJSON([
+            'status' => true,
+            'icon' => 'success',
+            'title' => 'Berhasil login!',
+            'text' => 'Anda akan diarahkan dalam 3 detik.',
+        ]);
     }
 
-    public function Register()
+
+    public function register()
     {
         $model = new Users();
         if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
-            $data = [
-                'username' => $this->request->getPost('username'),
-                'email'    => $this->request->getPost('email'),
-                'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-                'name'     => $this->request->getPost('name'),
-            ];
-            $checkpointUsername = $model->where('username', $data['username'])->first();
-            $checkpointEmail = $model->where('email', $data['email'])->first();
-            if ($checkpointUsername) {
+            $data = $this->request->getPost([
+                'username',
+                'email',
+                'password',
+                'name'
+            ]);
+
+            $existingUser = $model->whereIn('username', [$data['username'], $data['email']])
+                                ->orWhereIn('email', [$data['username'], $data['email']])
+                                ->first();
+
+            if ($existingUser) {
                 return $this->response->setJSON([
                     'status' => false,
                     'icon' => 'error',
                     'title' => 'Error!',
-                    'text' => 'Username telah digunakan.',
+                    'text' => ($existingUser->username == $data['username']) ? 'Username telah digunakan.' : 'Email telah digunakan.'
                 ]);
-            } elseif ($checkpointEmail) {
+            }
+
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            $data['token'] = $this->generateToken(150);
+            $model->insert($data);
+
+            $this->setSession($model->usernameOrEmail($data['username']));
+
+            return $this->response->setJSON([
+                'status' => true,
+                'icon' => 'success',
+                'title' => 'Success!',
+                'text' => 'Berhasil daftar.'
+            ]);
+        }
+
+        return view('pages/auth/signUpAuth', ['page' => 'Register']);
+    }
+
+    public function LupaPassword()
+    {
+        if (!$this->request->isAJAX() || $this->request->getMethod(true) !== 'POST') {
+            return view('pages/auth/resetPasswordAuth', ['page' => 'Reset Password']);
+        }
+
+        $email = $this->request->getVar('email');
+        $model = new Users();
+        $dataUser = $model->getUserByEmail($email);
+
+        if (empty($dataUser)) {
+            return $this->response->setJSON([
+                'status' => false,
+                'icon' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Email anda tidak ada di database.'
+            ]);
+        }
+        if (!$model->updatedAt($dataUser['token'])) {
+            return $this->response->setJSON([
+                'status' => false,
+                'icon' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Whoops, terjadi error.'
+            ]);
+        }
+
+        $dt['get'] = [
+            'email' => $email,
+            'nama'  => $dataUser['name'],
+            'token' => $dataUser['token'],
+        ];
+        $to = $email;
+        $subject = 'Reset Password';
+        $message = view('email/email_rpw.php', $dt);
+
+        $email = \Config\Services::email();
+
+        $email->setMailType('html');
+        $email->setTo($to);
+        $email->setFrom('appbriliant@gmail.com', 'BRILIANT');
+        $email->setSubject($subject);
+        $email->setMessage($message);
+        $email->setNewLine("\r\n");
+
+        if ($email->send("X-Priority: 1 (Highest)\n")) {
+            return $this->response->setJSON([
+                'status' => true,
+                'icon' => 'success',
+                'title' => 'Success!',
+                'text' => 'Berhasil mengirim email permintaan reset password, silahkan cek email anda!.'
+            ]);
+        } else {
+            $data = $email->printDebugger(['headers']);
+            print_r($data);
+        }
+    }
+
+    public function ResetPassword($email, $token)
+    {
+        $model = new Users();
+        $dataUser = $model->where('email', $email)->first();
+    
+        // Using the request object instead of $_POST and $_SERVER variables
+        if ($this->request->isAJAX() && $this->request->getMethod() === 'post') {
+            $password = $this->request->getPost('password');
+    
+            if ($model->update($dataUser['id'], ['password' => password_hash($password, PASSWORD_DEFAULT)])) {
+    
+                // Used a ternary operator to simplify the logic
+                $status = $model->update($dataUser['id'], ['token' => $this->generateToken(150)]) ? true : false;
+    
+                return $this->response->setJSON([
+                    'status' => $status,
+                    'icon' => $status ? 'success' : 'error',
+                    'title' => ucfirst($status ? 'Berhasil!' : 'Error!'),
+                    'text' => ($status ? 'Berhasil' : 'Gagal') . ' reset password.'
+                ]);
+            } else {
                 return $this->response->setJSON([
                     'status' => false,
                     'icon' => 'error',
                     'title' => 'Error!',
-                    'text' => 'Email telah digunakan.',
+                    'text' => 'Gagal reset password.'
                 ]);
-            } else {
-                if ($model->insert($data)) {
-                    $this->setSession($model->usernameOrEmail($data['username']));
-                    return $this->response->setJSON([
-                        'status' => true,
-                        'icon' => 'success',
-                        'title' => 'Success!',
-                        'text' => 'Berhasil daftar.',
-                    ]);
-                }
             }
         }
-        $data = [
-            'page' => 'Register'
-        ];
-        return view('pages/auth/signUpAuth', $data);
-    }
+    
+        // Using elseif instead of multiple if statements for better performance
+        elseif ($this->request->getMethod() === 'get') {
+            if ($dataUser['token'] === $token) {
+                $data = [
+                    'email' => $email,
+                    'token' => $token,
+                    'page' => 'Reset Password'
+                ];
+                // Using view() helper method instead of calling the View class directly
+                return view('pages/auth/newPasswordAuth', $data);
+            } else {
+                return redirect()->to('reset-password');
+            }
+        }
+    }    
 }

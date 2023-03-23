@@ -32,6 +32,8 @@ $routes->set404Override();
 $routes->get('/', 'AuthController::index');
 $routes->match(['GET', 'POST'], 'login', 'AuthController::Login');
 $routes->match(['GET', 'POST'], 'register', 'AuthController::Register');
+$routes->match(['GET', 'POST'], 'reset-password', 'AuthController::LupaPassword');
+$routes->match(['GET', 'POST'], 'reset-password/v1/(:any)/(:any)', 'AuthController::ResetPassword/$1/$2');
 
 $routes->group('dashboard' , ['filter' => 'authMiddleware'] , function($routes) {
     $routes->get('logout', 'DashboardController::Logout');
