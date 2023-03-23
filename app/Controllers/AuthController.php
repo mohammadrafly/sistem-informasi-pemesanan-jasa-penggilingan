@@ -126,60 +126,67 @@ class AuthController extends BaseController
 
     public function LupaPassword()
     {
-        if (!$this->request->isAJAX() || $this->request->getMethod(true) !== 'POST') {
+        if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
+            $email = $this->request->getVar('email');
+            $model = new Users();
+            $dataUser = $model->getUserByEmail($email);
+
+            if (empty($dataUser)) {
+                return $this->response->setJSON([
+                    'status' => false,
+                    'icon' => 'error',
+                    'title' => 'Gagal!',
+                    'text' => 'Email anda tidak ada di database.'
+                ]);
+            }
+
+            $tokenUpdatedAt = $model->updatedAt($dataUser['token']);
+
+            if (!$tokenUpdatedAt) {
+                return $this->response->setJSON([
+                    'status' => false,
+                    'icon' => 'error',
+                    'title' => 'Gagal!',
+                    'text' => 'Whoops, terjadi error saat update token.'
+                ]);
+            }
+
+            $data = [
+                'email' => $email,
+                'nama'  => $dataUser['name'],
+                'token' => $dataUser['token'],
+            ];
+
+            $emailSent = $this->sendResetPasswordEmail($email, $data);
+
+            if ($emailSent) {
+                return $this->response->setJSON([
+                    'status' => true,
+                    'icon' => 'success',
+                    'title' => 'Success!',
+                    'text' => 'Berhasil mengirim email permintaan reset password, silahkan cek email anda!.'
+                ]);
+            } else {
+                $email = \Config\Services::email();
+                $data = $email->printDebugger(['headers']);
+                print_r($data);
+            }
+        } else {
             return view('pages/auth/resetPasswordAuth', ['page' => 'Reset Password']);
         }
+    }
 
-        $email = $this->request->getVar('email');
-        $model = new Users();
-        $dataUser = $model->getUserByEmail($email);
-
-        if (empty($dataUser)) {
-            return $this->response->setJSON([
-                'status' => false,
-                'icon' => 'error',
-                'title' => 'Gagal!',
-                'text' => 'Email anda tidak ada di database.'
-            ]);
-        }
-        if (!$model->updatedAt($dataUser['token'])) {
-            return $this->response->setJSON([
-                'status' => false,
-                'icon' => 'error',
-                'title' => 'Gagal!',
-                'text' => 'Whoops, terjadi error.'
-            ]);
-        }
-
-        $dt['get'] = [
-            'email' => $email,
-            'nama'  => $dataUser['name'],
-            'token' => $dataUser['token'],
-        ];
-        $to = $email;
-        $subject = 'Reset Password';
-        $message = view('email/email_rpw.php', $dt);
-
+    private function sendResetPasswordEmail($to, $data)
+    {
         $email = \Config\Services::email();
+        $email->setMailType('html')
+            ->setTo($to)
+            ->setFrom('sipejag@gmail.com', 'SIPEJAG')
+            ->setSubject('Reset Password')
+            ->setMessage(view('email/email_rpw.php', $data))
+            ->setNewLine("\r\n");
 
-        $email->setMailType('html');
-        $email->setTo($to);
-        $email->setFrom('appbriliant@gmail.com', 'BRILIANT');
-        $email->setSubject($subject);
-        $email->setMessage($message);
-        $email->setNewLine("\r\n");
-
-        if ($email->send("X-Priority: 1 (Highest)\n")) {
-            return $this->response->setJSON([
-                'status' => true,
-                'icon' => 'success',
-                'title' => 'Success!',
-                'text' => 'Berhasil mengirim email permintaan reset password, silahkan cek email anda!.'
-            ]);
-        } else {
-            $data = $email->printDebugger(['headers']);
-            print_r($data);
-        }
+        return $email->send("X-Priority: 1 (Highest)\n");
     }
 
     public function ResetPassword($email, $token)

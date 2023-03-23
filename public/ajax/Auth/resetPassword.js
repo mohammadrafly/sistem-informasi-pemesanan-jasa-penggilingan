@@ -16,7 +16,28 @@ $(document).ready(function() {
 
           return;
       }
-
+      Swal.fire({
+        title: 'Sending..',
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        timer: 5000,
+        onOpen: () => {
+          swal.showLoading();
+        }
+      }).then(
+        () => {},
+        (dismiss) => {
+          if (dismiss === 'timer') {
+            console.log('closed by timer!!!!');
+            swal({ 
+              title: 'Finished!',
+              type: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            })
+          }
+        }
+      )
       $.ajax({
           url: `${base_url}reset-password`,
           type: 'POST',
