@@ -32,6 +32,10 @@ class Users extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => '255',
             ],
+            'token' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '150',
+            ],
             'role' => [
                 'type' => 'ENUM("superadmin","admin","user")',
                 'default' => 'user',
