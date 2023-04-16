@@ -64,7 +64,6 @@ class OrdersController extends BaseController
         
         return view('pages/ordersDashboard', $data);
     }
-    
 
     public function getUser()
     {
