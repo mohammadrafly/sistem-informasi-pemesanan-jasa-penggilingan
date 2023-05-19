@@ -42,7 +42,7 @@
                                                                                 <div id="pass" class="row">
                                                                                     <div class="col-sm-6">
                                                                                         <div class="form-group form-group-custom mb-4">
-                                                                                            <input type="password" class="form-control" id="password" required>
+                                                                                            <input type="password" class="form-control" id="password" name="password" required>
                                                                                             <label for="password">Password</label> 
                                                                                         </div>
                                                                                     </div>
