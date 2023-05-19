@@ -12,10 +12,9 @@ class Superadmin extends Seeder
             'name'=> 'superadmin',
             'username'  => 'superadmin',
             'email' => 'superadmin@gmail.com',
-            'password'  => '$2a$12$9itAdyuzRwG7eDW/UmLl6OV1qGEGGWG1Hj75ZW7oP7jzojjoPrjKS',
+            'password'  => password_hash('superadmin', PASSWORD_DEFAULT),
             'role' => 'superadmin',
         ];
-        $this->db->query('INSERT INTO users (name, username, email, password, role) VALUES(:name:,:username:, :email:, :password:, :role:)', $data);
         $this->db->table('users')->insert($data);
     }
 }

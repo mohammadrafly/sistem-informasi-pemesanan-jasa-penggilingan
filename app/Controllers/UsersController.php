@@ -12,11 +12,11 @@ class UsersController extends BaseController
         $model = new Users();
         if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
             $data = [
-                'username' => $this->request->getPost('username'),
-                'email'    => $this->request->getPost('email'),
-                'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-                'name'     => $this->request->getPost('name'),
-                'role'     => $this->request->getPost('role'),
+                'username' => $this->request->getVar('username'),
+                'email'    => $this->request->getVar('email'),
+                'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
+                'name'     => $this->request->getVar('name'),
+                'role'     => $this->request->getVar('role'),
             ];
             if ($model->save($data)) {
                 return $this->response->setJSON([
@@ -48,10 +48,10 @@ class UsersController extends BaseController
         $model = new Users();
         if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
             $data = [
-                'username' => $this->request->getPost('username'),
-                'email'    => $this->request->getPost('email'),
-                'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-                'name'     => $this->request->getPost('name'),
+                'username' => $this->request->getVar('username'),
+                'email'    => $this->request->getVar('email'),
+                'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
+                'name'     => $this->request->getVar('name'),
                 'updated_at'=> date('Y-m-d H:i:s'),
             ];
             if ($model->update($id, $data)) {
