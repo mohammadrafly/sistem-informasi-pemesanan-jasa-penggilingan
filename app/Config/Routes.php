@@ -52,6 +52,7 @@ $routes->group('dashboard' , ['filter' => 'authMiddleware'] , function($routes) 
     $routes->match(['GET', 'POST'], 'orders/update/(:num)', 'OrdersController::update/$1');
     $routes->get('orders/delete/(:num)', 'OrdersController::delete/$1');
     $routes->get('orders/get/users', 'OrdersController::getUser');
+    $routes->get('orders/laporan/(:any)/(:any)/(:num)', 'OrdersController::export/$1/$2/$3');
 
     //JenisTanaman
     $routes->match(['GET', 'POST'], 'jenis', 'JenisController::index');

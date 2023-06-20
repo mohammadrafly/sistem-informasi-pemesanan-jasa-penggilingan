@@ -103,4 +103,20 @@ class Orders extends Model
             ->where('orders.id_user', $id)
             ->get()->getResult();
     }
+
+    function findDataInBetweenByUsersId($start, $end, $id)
+    {
+        return $this->db->table('orders')
+            ->select('
+                users.name,
+                jenis_tanaman.nama_tanaman as jenis,
+                orders.*
+            ')
+            ->join('users', 'orders.id_user = users.id')
+            ->join('jenis_tanaman', 'orders.jenis_tanaman = jenis_tanaman.id')
+            ->where('orders.admin', $id)
+            ->where("orders.tanggal_db BETWEEN '$start' AND '$end'")
+            ->get()
+            ->getResultArray();
+    }
 }

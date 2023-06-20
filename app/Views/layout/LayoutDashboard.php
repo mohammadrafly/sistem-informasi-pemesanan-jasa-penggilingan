@@ -30,7 +30,7 @@
         <link href="<?= base_url('assets/css/icons.min.css') ?>" rel="stylesheet" type="text/css" />
         <!-- App Css-->
         <link href="<?= base_url('assets/css/app.min.css') ?>" rel="stylesheet" type="text/css" />
-
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     </head>
 
     <body data-topbar="colored" data-layout="horizontal" data-layout-size="boxed">
@@ -110,5 +110,6 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
         ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     </body>
 </html>

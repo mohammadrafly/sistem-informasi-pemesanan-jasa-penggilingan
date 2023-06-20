@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\Orders;
 use App\Models\Users;
 use App\Models\JenisTanaman;
+use PhpOffice\PhpSpreadsheet\Spreadsheet as PhpSpreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class OrdersController extends BaseController
 {
@@ -139,5 +141,48 @@ class OrdersController extends BaseController
     
         return $this->response->setJSON($response);
     }
+
+    public function export($start, $end, $id)
+    {
+        $model = new Orders();
+        $modelUser = new Users();
+        $dataUser = $model->findDataInBetweenByUsersId($start, $end, $id);
+        $admin = $modelUser->where('id', $id)->first();
+        //dd($dataUser);
+        $spreadsheet = new PhpSpreadsheet();
+        $spreadsheet->setActiveSheetIndex(0)
+            ->setCellValue('A1', 'No.')
+            ->setCellValue('B1', 'Nama Pelanggan')
+            ->setCellValue('C1', 'Nomor User')
+            ->setCellValue('D1', 'Luas Sawah')
+            ->setCellValue('E1', 'Jenis Tanaman')
+            ->setCellValue('F1', 'Tanggal DB');
+
+        $column = 2;
+        $no = 1;
+
+        // tulis data mobil ke cell
+        foreach($dataUser as $data) {
+        $spreadsheet->setActiveSheetIndex(0)
+            ->setCellValue('A' . $column, $no++)
+            ->setCellValue('B' . $column, $data['name'])
+            ->setCellValue('C' . $column, $data['nomor_user'])
+            ->setCellValue('D' . $column, $data['luas_sawah'])
+            ->setCellValue('E' . $column, $data['jenis'])
+            ->setCellValue('F' . $column, $data['tanggal_db']);
     
+        $column++;
+        }
+
+        // tulis dalam format .xlsx
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'Laporan Admin_'. $admin['name'] .' | ' . $start . ' - ' . $end ;
+
+        // Redirect hasil generate xlsx ke web client
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename='.$fileName.'.xlsx');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+    }
 }

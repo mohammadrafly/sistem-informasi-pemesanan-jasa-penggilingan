@@ -49,7 +49,7 @@ class AuthController extends BaseController
             return view('pages/auth/signInAuth', ['page' => 'Login']);
         }
 
-        $username = $this->request->getPost('username');
+        $username = $this->request->getVar('username');
         $checkpointData = $model->usernameOrEmail($username);
 
         if (empty($checkpointData)) {
@@ -60,7 +60,7 @@ class AuthController extends BaseController
                 'text' => 'Username atau email tidak ada.',
             ]);
         }
-        $password = $this->request->getPost('password');
+        $password = $this->request->getVar('password');
         $isValidPassword = password_verify($password, $checkpointData[0]['password']);
 
         if (!$isValidPassword) {
@@ -87,7 +87,7 @@ class AuthController extends BaseController
     {
         $model = new Users();
         if ($this->request->isAJAX() && $this->request->getMethod(true) === 'POST') {
-            $data = $this->request->getPost([
+            $data = $this->request->getVar([
                 'username',
                 'email',
                 'password',
@@ -103,7 +103,7 @@ class AuthController extends BaseController
                     'status' => false,
                     'icon' => 'error',
                     'title' => 'Error!',
-                    'text' => ($existingUser->username == $data['username']) ? 'Username telah digunakan.' : 'Email telah digunakan.'
+                    'text' => ($existingUser['username'] == $data['username']) ? 'Username telah digunakan.' : 'Email telah digunakan.'
                 ]);
             }
 
@@ -196,7 +196,7 @@ class AuthController extends BaseController
     
         // Using the request object instead of $_POST and $_SERVER variables
         if ($this->request->isAJAX() && $this->request->getMethod() === 'post') {
-            $password = $this->request->getPost('password');
+            $password = $this->request->getVar('password');
     
             if ($model->update($dataUser['id'], ['password' => password_hash($password, PASSWORD_DEFAULT)])) {
     
