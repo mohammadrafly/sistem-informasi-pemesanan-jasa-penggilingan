@@ -13,7 +13,7 @@
               <button type="button" class="btn btn-success btn-sm waves-effect waves-light mb-3 ml-2" data-toggle="modal" data-target="#exportModal">Export</button>
               <?php endif ?>
             </div>
-            <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+            <table id="datatable" class="table table-bordered dt-responsive nowrap">
               <thead>
                 <tr>
                   <th>Nama Pemesan</th>
@@ -113,13 +113,10 @@
               <?php endforeach ?>
             </select>
           </div>
-          <div class="form-group form-group mb-4">
+          <div class="form-group form-group mb-4" id="status_order" hidden>
             <label for="status">Status Order</label>
             <select class="custom-select" name="status" id="status" required>
               <option selected>Pilih Status</option>
-              <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
-              <option value="dalam_progres">Dalam Progres</option>
-              <option value="selesai">Selesai</option>
             </select>
           </div>
           <div class="mt-4">

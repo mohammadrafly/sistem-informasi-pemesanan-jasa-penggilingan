@@ -1,34 +1,54 @@
 function editOrder(id) {
-    save_method = 'update';
-    $('#form')[0].reset();
-    $.ajax({
-      url: `${base_url}dashboard/orders/update/${id}`,
-      type: 'GET',
-      dataType: 'JSON',
-      success: function(respond) {
-        $('#id').val(respond.data[0].id);
-        $('#tanggal_db').val(respond.data[0].tanggal_db);
-        $('#alamat_db').val(respond.data[0].alamat_db);
-        $('#nomor_user').val(respond.data[0].nomor_user);
-        $('#luas_sawah').val(respond.data[0].luas_sawah);
-        $('#jenis_tanaman').val(respond.data[0].jenis_tanaman);
-        $('#admin').val(respond.data[0].admin);
-        $('#status').val(respond.data[0].status);
-        $('#modal').modal('show');
-        $('.modal-title').text('Edit Orders');
-        $('#select').remove();
-      },
-      error: function(respond) {
-        const { icon, title, text } = respond;
-        Swal.fire({
-          icon,
-          title,
-          text,
-        });
+  save_method = 'update';
+  $('#form')[0].reset();
+  $.ajax({
+    url: `${base_url}dashboard/orders/update/${id}`,
+    type: 'GET',
+    dataType: 'JSON',
+    success: function(respond) {
+      $('#id').val(respond.data[0].id);
+      $('#tanggal_db').val(respond.data[0].tanggal_db);
+      $('#alamat_db').val(respond.data[0].alamat_db);
+      $('#nomor_user').val(respond.data[0].nomor_user);
+      $('#luas_sawah').val(respond.data[0].luas_sawah);
+      $('#jenis_tanaman').val(respond.data[0].jenis_tanaman);
+      $('#admin').val(respond.data[0].admin);
+
+      const statusValue = respond.data[0].status;
+      const statusSelect = $('#status');
+      statusSelect.empty();
+
+      const defaultOption = $('<option>').text('Pilih Status').attr('selected', 'selected');
+      statusSelect.append(defaultOption);
+
+      if (statusValue === 'menunggu_konfirmasi') {
+        const dalamProgresOption = $('<option>').val('dalam_progres').text('Konfirmasi Order');
+        const menungguKonfirmasi = $('<option>').val('menunggu_konfirmasi').text('Menunggu Konfirmasi');
+        menungguKonfirmasi.attr('selected', 'selected');
+        statusSelect.append(menungguKonfirmasi, dalamProgresOption);
+      } else if (statusValue === 'dalam_progres') {
+        const selesaiOption = $('<option>').val('selesai').text('Selesai');
+        const dalamProgresOption = $('<option>').val('dalam_progres').text('Dalam Progres');
+        dalamProgresOption.attr('selected', 'selected');
+        statusSelect.append(dalamProgresOption, selesaiOption);
       }
-    });
-  }
-  
+
+      $('#addOrderModal').modal('show');
+      $('.modal-title').text('Edit Orders');
+      $('#select').remove();
+      $('#status_order').removeAttr('hidden');
+    },
+    error: function(respond) {
+      const { icon, title, text } = respond;
+      Swal.fire({
+        icon,
+        title,
+        text,
+      });
+    }
+  });
+}
+
 
   function saveOrder() {
     const id = $("#id").val();

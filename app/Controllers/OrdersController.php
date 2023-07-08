@@ -26,7 +26,6 @@ class OrdersController extends BaseController
                 'luas_sawah'   => $this->request->getPost('luas_sawah'),
                 'jenis_tanaman'   => $this->request->getPost('jenis_tanaman'),
                 'admin'   => $this->request->getPost('admin'),
-                'status'   => $this->request->getPost('status'),
             ];
             
             $saved = $orderModel->save($data);
